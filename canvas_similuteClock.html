@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+      }
+      *::-webkit-scrollbar {
+        display: none;
+      }
+      html,
+      body {
+        width: 100%;
+        height: 100%;
+      }
+      .container {
+        width: 100%;
+        height: 100%;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <canvas id="canvas"></canvas>
+    </div>
+    <script>
+      const X = window.innerWidth;
+      const Y = window.innerHeight;
+      const R = 100;
+      const R_H = 50;
+      const R_M = 70;
+      const R_S = 90;
+      const R_r_1 = 8;
+      const R_r_2 = 4;
+      var canvas = document.getElementById("canvas");
+      canvas.style.width = X + "px";
+      canvas.style.height = Y + "px";
+      var ctx = setupCanvas(canvas);
+      function clock(ctx) {
+        ctx.clearRect(X / 2, Y / 2, 2 * R, 2 * R);
+        let h = new Date().getHours();
+        let m = new Date().getMinutes();
+        let s = new Date().getSeconds();
+        if (h > 12) {
+          h -= 12;
+        }
+        // 表盘
+        ctx.beginPath();
+        ctx.fillStyle = "#eee";
+        ctx.lineWidth = 5;
+        ctx.strokeStyle = "#fc8";
+        ctx.arc(X / 2, Y / 2, R, 0, 2 * Math.PI);
+        ctx.stroke();
+        ctx.fill();
+        ctx.closePath();
+        // 刻度
+        for (let i = 0; i < 60; i++) {
+          let short_mark = 95,
+            long_mark = 90;
+          let mark = i % 5 === 0 ? long_mark : short_mark;
+          ctx.beginPath();
+          ctx.lineWidth = i % 5 === 0 ? 2 : 1;
+          ctx.strokeStyle = "#fa1";
+          ctx.moveTo(
+            X / 2 + R * Math.sin((Math.PI * 2 * i) / 60),
+            Y / 2 - R * Math.cos((Math.PI * 2 * i) / 60)
+          );
+          ctx.lineTo(
+            X / 2 + mark * Math.sin((Math.PI * 2 * i) / 60),
+            Y / 2 - mark * Math.cos((Math.PI * 2 * i) / 60)
+          );
+          ctx.stroke();
+          ctx.closePath();
+        }
+        // 时针
+        ctx.beginPath();
+        ctx.lineWidth = 4;
+        ctx.strokeStyle = "#fc8";
+        ctx.moveTo(X / 2, Y / 2);
+        ctx.lineTo(
+          X / 2 +
+            R_H *
+              Math.sin(
+                Math.PI * 2 * (h / 12) +
+                  Math.PI * 2 * (m / 60 / 12) +
+                  Math.PI * 2 * (s / 60 / 60 / 12)
+              ),
+          Y / 2 -
+            R_H *
+              Math.cos(
+                Math.PI * 2 * (h / 12) +
+                  Math.PI * 2 * (m / 60 / 12) +
+                  Math.PI * 2 * (s / 60 / 60 / 12)
+              )
+        );
+        ctx.stroke();
+        ctx.closePath();
+        // 分针
+        ctx.beginPath();
+        ctx.lineWidth = 2;
+        ctx.strokeStyle = "#fc8";
+        ctx.moveTo(X / 2, Y / 2);
+        ctx.lineTo(
+          X / 2 +
+            R_M *
+              Math.sin(Math.PI * 2 * (m / 60) + Math.PI * 2 * (s / 60 / 60)),
+          Y / 2 -
+            R_M * Math.cos(Math.PI * 2 * (m / 60) + Math.PI * 2 * (s / 60 / 60))
+        );
+        ctx.stroke();
+        ctx.closePath();
+        // 秒针
+        ctx.beginPath();
+        ctx.lineWidth = 1;
+        ctx.strokeStyle = "#fc8";
+        ctx.moveTo(
+          X / 2 - 20 * Math.sin((2 * Math.PI * s) / 60),
+          Y / 2 + 20 * Math.cos((2 * Math.PI * s) / 60)
+        );
+        ctx.lineTo(
+          X / 2 + R_S * Math.sin((2 * Math.PI * s) / 60),
+          Y / 2 - R_S * Math.cos((2 * Math.PI * s) / 60)
+        );
+        ctx.stroke();
+        ctx.closePath();
+        // 钟轴_1
+        ctx.beginPath();
+        ctx.fillStyle = "#fc8";
+        ctx.arc(X / 2, Y / 2, R_r_1, 0, 2 * Math.PI);
+        ctx.fill();
+        ctx.closePath();
+        // 钟轴_2
+        ctx.beginPath();
+        ctx.lineWidth = 2;
+        ctx.strokeStyle = "#888";
+        ctx.fillStyle = "#fc8";
+        ctx.arc(X / 2, Y / 2, R_r_2, 0, 2 * Math.PI);
+        ctx.fill();
+        ctx.stroke();
+        ctx.closePath();
+      }
+      function setupCanvas(canvas) {
+        var dpr = window.devicePixelRatio || 1;
+        var rect = canvas.getBoundingClientRect();
+        canvas.width = rect.width * dpr;
+        canvas.height = rect.height * dpr;
+        var ctx = canvas.getContext("2d");
+        ctx.scale(dpr, dpr);
+        return ctx;
+      }
+      (function loop() {
+        clock(ctx);
+        window.requestAnimationFrame(loop);
+      })();
+    </script>
+  </body>
+</html>
